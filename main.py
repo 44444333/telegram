@@ -3,7 +3,7 @@ import asyncio
 import logging
 from telethon import TelegramClient, errors
 from telethon.errors import FloodWaitError, RpcCallFailError, PasswordHashInvalidError
-from config import API_ID, API_HASH, USE_PROXY, PROXY, CHAT_IDS, MESSAGES, MIN_INTERVAL, MAX_INTERVAL, PHONE_OR_BOT_TOKEN
+from config import API_ID, API_HASH, USE_PROXY, PROXY, CHAT_IDS, MIN_INTERVAL, MAX_INTERVAL, PHONE_OR_BOT_TOKEN
 
 # Логирование для отладки и отслеживания работы программы
 logging.basicConfig(level=logging.INFO)
@@ -21,10 +21,19 @@ def get_client():
     
     return client
 
+# Функция для генерации случайных сообщений
+def generate_random_message():
+    greetings = ["Привет", "Здравствуйте", "Хай", "Приветствую"]
+    subjects = ["Как дела?", "Что нового?", "Как поживаете?", "Как ваши дела?"]
+    closings = ["Удачного дня!", "Береги себя!", "На связи!", "Всего доброго!"]
+
+    message = f"{random.choice(greetings)}! {random.choice(subjects)} {random.choice(closings)}"
+    return message
+
 # Асинхронная функция для отправки случайного сообщения в случайный чат
 async def send_random_message(client):
     chat_id = random.choice(CHAT_IDS)
-    message = random.choice(MESSAGES)
+    message = generate_random_message()  # Генерируем новое сообщение
     try:
         await client.send_message(chat_id, message)
         logger.info(f"Message '{message}' sent to chat {chat_id}")
