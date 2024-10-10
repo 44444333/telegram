@@ -2,10 +2,7 @@ import random
 import asyncio
 import logging
 from telethon import TelegramClient, errors
-from telethon.errors import (
-    FloodWaitError, 
-    RpcCallFailError
-)
+from telethon.errors import FloodWaitError, RpcCallFailError
 from config import API_ID, API_HASH, USE_PROXY, PROXY, CHAT_IDS, MESSAGES, MIN_INTERVAL, MAX_INTERVAL, PHONE_OR_BOT_TOKEN
 
 # Логирование для отладки и отслеживания работы программы
@@ -59,7 +56,7 @@ async def main():
         # Запуск планировщика сообщений
         await message_scheduler(client)
 
-    except errors.FloodWaitError as e:
+    except FloodWaitError as e:
         logger.warning(f"Flood wait error: {str(e)}")
     except errors.AuthKeyError:
         logger.error("Authentication error. Please check your phone number or bot token.")
