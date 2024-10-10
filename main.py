@@ -2,7 +2,7 @@ import random
 import asyncio
 import logging
 from telethon import TelegramClient, errors
-from telethon.errors import FloodWaitError, RpcCallFailError
+from telethon.errors import FloodWaitError, RpcCallFailError, PasswordHashInvalidError
 from config import API_ID, API_HASH, USE_PROXY, PROXY, CHAT_IDS, MESSAGES, MIN_INTERVAL, MAX_INTERVAL, PHONE_OR_BOT_TOKEN
 
 # Логирование для отладки и отслеживания работы программы
@@ -53,11 +53,20 @@ async def main():
         await client.start(phone=PHONE_OR_BOT_TOKEN)  # Передаем номер телефона или токен бота
         logger.info("Client started successfully")
 
+        # Проверяем, требуется ли ввод пароля
+        if client.is_user and await client.is_authenticated:
+            # Если требуется пароль, запрашиваем его
+            password = input("Please enter your password: ")
+            await client.sign_in(PHONE_OR_BOT_TOKEN, password)
+            logger.info("Signed in successfully with password.")
+
         # Запуск планировщика сообщений
         await message_scheduler(client)
 
     except FloodWaitError as e:
         logger.warning(f"Flood wait error: {str(e)}")
+    except PasswordHashInvalidError:
+        logger.error("Invalid password. Please check your password.")
     except errors.AuthKeyError:
         logger.error("Authentication error. Please check your phone number or bot token.")
     except Exception as e:
