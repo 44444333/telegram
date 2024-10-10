@@ -8,7 +8,7 @@ from telethon.errors import (
     FloodWaitError, 
     RpcCallFailError
 )
-from config import API_ID, API_HASH, USE_PROXY, PROXY, CHAT_IDS, MESSAGES, MIN_INTERVAL, MAX_INTERVAL
+from config import API_ID, API_HASH, USE_PROXY, PROXY, CHAT_IDS, MESSAGES, MIN_INTERVAL, MAX_INTERVAL, PHONE_OR_BOT_TOKEN
 
 # Логирование для отладки и отслеживания работы программы
 logging.basicConfig(level=logging.INFO)
@@ -43,7 +43,7 @@ async def send_random_message(client):
 async def message_scheduler(client):
     while True:
         await send_random_message(client)
-        # Выбираем случайный интервал времени от 15 до 40 минут
+        # Выбираем случайный интервал времени от MIN_INTERVAL до MAX_INTERVAL
         interval = random.randint(MIN_INTERVAL, MAX_INTERVAL)
         logger.info(f"Waiting {interval // 60} minutes before sending the next message")
         await asyncio.sleep(interval)
@@ -53,24 +53,5 @@ async def main():
     client = get_client()
     try:
         # Подключаемся к клиенту
-        await client.start()
-        logger.info("Client started successfully")
-
-        # Запуск планировщика сообщений
-        await message_scheduler(client)
-
-    except errors.ConnectionError as e:
-        logger.error(f"Connection error: {str(e)}")
-        await client.disconnect()
-    except asyncio.TimeoutError as e:
-        logger.error(f"Timeout error: {str(e)}")
-        await client.disconnect()
-    except KeyboardInterrupt:
-        logger.info("Program stopped manually")
-        await client.disconnect()
-    except Exception as e:
-        logger.error(f"An error occurred: {str(e)}")
-        await client.disconnect()
-
-if __name__ == "__main__":
-    asyncio.run(main())
+        await client.start(phone=PHONE_OR_BOT_TOKEN)  # Передаем номер телефона или токен бота
+       
