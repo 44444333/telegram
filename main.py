@@ -1,5 +1,3 @@
-# main.py
-
 import random
 import asyncio
 import logging
@@ -18,7 +16,9 @@ logger = logging.getLogger(__name__)
 def get_client():
     if USE_PROXY:
         # Используем прокси-сервер
-        client = TelegramClient('session_name', API_ID, API_HASH, proxy=(PROXY['proxy_type'], PROXY['addr'], PROXY['port'], True, PROXY['username'], PROXY['password']))
+        client = TelegramClient('session_name', API_ID, API_HASH, 
+                                 proxy=(PROXY['proxy_type'], PROXY['addr'], PROXY['port'], 
+                                        True, PROXY['username'], PROXY['password']))
     else:
         client = TelegramClient('session_name', API_ID, API_HASH)
     
@@ -54,4 +54,19 @@ async def main():
     try:
         # Подключаемся к клиенту
         await client.start(phone=PHONE_OR_BOT_TOKEN)  # Передаем номер телефона или токен бота
-       
+        logger.info("Client started successfully")
+
+        # Запуск планировщика сообщений
+        await message_scheduler(client)
+
+    except errors.FloodWaitError as e:
+        logger.warning(f"Flood wait error: {str(e)}")
+    except errors.AuthKeyError:
+        logger.error("Authentication error. Please check your phone number or bot token.")
+    except Exception as e:
+        logger.error(f"An error occurred: {str(e)}")
+    finally:
+        await client.disconnect()
+
+if __name__ == "__main__":
+    asyncio.run(main())
